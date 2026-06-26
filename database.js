@@ -1,4 +1,4 @@
-const Database = require('better-sqlite3');
+const { DatabaseSync } = require('node:sqlite');
 const path = require('path');
 const fs = require('fs');
 
@@ -11,8 +11,8 @@ function forFamily(familyId) {
   const dir = path.join(DATA_DIR, familyId);
   fs.mkdirSync(dir, { recursive: true });
 
-  const db = new Database(path.join(dir, 'wa.db'));
-  db.pragma('journal_mode = WAL');
+  const db = new DatabaseSync(path.join(dir, 'wa.db'));
+  db.exec('PRAGMA journal_mode = WAL');
 
   db.exec(`
     CREATE TABLE IF NOT EXISTS contacts (

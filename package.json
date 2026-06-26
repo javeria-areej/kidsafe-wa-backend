@@ -4,12 +4,11 @@
   "description": "KidSafe Virtual WhatsApp Backend — pairing code, filtered contacts, permanent message store",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
+    "start": "node --experimental-sqlite index.js",
     "dev": "nodemon index.js"
   },
   "dependencies": {
     "@whiskeysockets/baileys": "^6.7.9",
-    "better-sqlite3": "^9.4.3",
     "express": "^4.18.3",
     "pino": "^9.4.0",
     "ws": "^8.16.0"
