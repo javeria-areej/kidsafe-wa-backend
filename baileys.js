@@ -3,6 +3,7 @@ const {
   useMultiFileAuthState,
   DisconnectReason,
   makeCacheableSignalKeyStore,
+  fetchLatestBaileysVersion,
 } = require('@whiskeysockets/baileys');
 const pino = require('pino');
 const path = require('path');
@@ -31,19 +32,27 @@ async function connect(familyId, phoneNumber, broadcast) {
   const { state, saveCreds } = await useMultiFileAuthState(authDir);
   const db = forFamily(familyId);
 
+  // Always use the latest WhatsApp Web version to avoid connection drops
+  const { version } = await fetchLatestBaileysVersion();
+
   const sock = makeWASocket({
+    version,
     auth: {
       creds: state.creds,
       keys: makeCacheableSignalKeyStore(state.keys, logger),
     },
     printQRInTerminal: false,
     logger,
+    connectTimeoutMs: 30000,
+    defaultQueryTimeoutMs: 30000,
+    keepAliveIntervalMs: 10000,
   });
 
   sockets.set(familyId, sock);
   _setupEvents(familyId, sock, saveCreds, broadcast);
 
-  await delay(2000);
+  // Wait longer for socket to fully initialize before requesting pairing code
+  await delay(5000);
 
   if (!sock.authState.creds.registered) {
     const cleaned = String(phoneNumber).replace(/\D/g, '');
